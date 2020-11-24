@@ -1,4 +1,4 @@
-# online-nomikai
+# QUIZ APP
 
 ## Project setup
 ```
