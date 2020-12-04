@@ -15,7 +15,9 @@ import Header from "@/components/abstract/Header.vue";
 export default {
   data() {
     return {
+      // ユーザー名
       userName: this.$store.state.userInfo.userName,
+      // レコード
       records: this.$store.state.records
     };
   },

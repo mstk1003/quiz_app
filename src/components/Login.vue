@@ -25,18 +25,23 @@ export default {
     };
   },
   methods: {
+    /**
+     * ユーザーの認証処理を実行する
+     */
     login() {
-      // ストアのデータを取得してマッチするかチェック
-      // ストアのauthをtrueに更新
+      // ユーザーIDとパスワードをチェックする
       this.$store.commit("authenticateUser", {
         userId: this.userId,
         password: this.password
       });
+      // ホーム画面へ移動する
       this.$router.push({ path: "/home" });
     }
   },
   mounted() {
+    // ログイン画面を開いたときに、ストアのユーザー情報をリセットする
     this.$store.commit("resetUserInfo");
+    // ローカストレージからユーザー情報を取得し、ストアに保存する
     this.$store.dispatch("getLocalStrage");
   }
 };

@@ -9,7 +9,6 @@
 
 <script>
 export default {
-  //親（App.vue）からデータを受け取る
   props: {
     numCorrect: Number,
     numTotal: Number

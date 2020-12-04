@@ -26,30 +26,56 @@ export default {
   },
   data() {
     return {
+      // ユーザー名
       userName: this.$store.state.userInfo.userName,
+      // カテゴリー
       categories: [],
+      // カテゴリー名
       categoryNames: [],
+      // カテゴリーID
       categoryId: "",
+      // カテゴリー名
       categoryName: "",
+      // モード
       modes: [],
+      // ディスプレイ用の難易度表示用ラベル
       difficultyLabels: [],
+      // 難易度
       difficulty: "",
+      // 取得した問題集
       currentQuestions: []
     };
   },
   methods: {
+    /**
+     * カテゴリー名を選択し、カテゴリー名に一致するカテゴリーIDを取得する
+     * @param categoryName カテゴリー名
+     */
     selectCategory(categoryName) {
+      // ドロップダウンから選んだカテゴリー名をインスタンスに保持する
       this.categoryName = categoryName;
+
+      // カテゴリー名に一致するIDを取得
       this.categoryId = this.categories.find(
         category => category.name === categoryName
       ).id;
     },
+
+    /**
+     * 難易度を選択する
+     * @param difficultyLabel 難易度
+     */
     selectDifficulty(difficultyLabel) {
       this.difficulty = this.modes.find(
         mode => mode.label === difficultyLabel
       ).difficulty;
     },
+
+    /**
+     * APIからクイズを取得し、クイズ画面に遷移する
+     */
     startQuiz() {
+      // カテゴリーと難易度に応じたクイズを取得する
       api
         .getQuestions(this.categoryId, this.difficulty)
         .then(response => {
@@ -59,7 +85,8 @@ export default {
         .then(jsonData => {
           // json形式のデータを配列のquestionsにいれる（レスポンスがオブジェクトの配列になっていることは分かっている）
           this.currentQuestions = jsonData.results;
-          //   let a = jsonData.results;
+
+          // クエスチョンボックス画面へ移動する
           this.$router
             .push({
               name: "question-box",
@@ -75,6 +102,7 @@ export default {
     }
   },
   mounted() {
+    // ホーム画面描画時に、APIからカテゴリーを取得する
     api
       .getCategory()
       .then(response => {
@@ -85,13 +113,16 @@ export default {
         this.categoryNames = this.categories.map(category => category.name);
       });
 
+    // インスタンスに難易度のモードを保持する
     this.modes = this.$store.state.modes;
+    // インスタンスに難易度のラベルを保持する
     this.difficultyLabels = this.modes.map(mode => mode.label);
   }
 };
 </script>
 
 <style scoped>
+/* 右寄せ */
 .right {
   margin-left: auto;
 }

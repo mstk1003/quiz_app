@@ -25,14 +25,22 @@
 export default {
   data() {
     return {
+      // ユーザー名
       userName: "",
+      // ユーザーID
       userId: "",
+      // パスワード
       password: ""
     };
   },
   methods: {
+    /**
+     * ユーザー情報をストアに登録する。
+     */
     registerUserInfo() {
+      // ローカルストレージからユーザー情報を取得
       this.$store.dispatch("getLocalStrage");
+      // ユーザー情報を登録する
       this.$store.commit("registerUserInfo", {
         userName: this.userName,
         userId: this.userId,
@@ -40,7 +48,9 @@ export default {
         auth: false
       });
 
+      // ローカルストレージにユーザー情報を保存する
       this.$store.dispatch("setLocalStrage");
+      // ログイン画面へ遷移する
       this.$router.push({ path: "/login" });
     }
   }

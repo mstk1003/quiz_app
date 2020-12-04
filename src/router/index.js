@@ -54,8 +54,8 @@ const router =  new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-    // ...
     if (to.matched.some(record => !record.meta.isPublic) && !store.state.userInfo.auth) {
+        // ユーザー情報が見当たらない場合、ログイン画面にリダイレクトする
         console.log('未認証です');
         next({
             path: '/login',

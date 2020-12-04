@@ -21,24 +21,36 @@
 <script>
 import Header from "@/components/abstract/Header.vue";
 export default {
-  props: { difficulty: String, categoryName: String },
+  props: {
+    // 難易度
+    difficulty: String,
+    // カテゴリー名
+    categoryName: String
+  },
   components: {
     Header
   },
   data() {
     return {
+      // ユーザー名
       userName: this.$store.state.userInfo.userName,
+      // 正解率
       score: 0,
+      // 回答数
       respondedNumber: 0,
+      // テーブルのフィールド
       fields: ["question", "yourAnswer", "correctAnswer"],
+      // 結果
       results: this.$store.state.results
     };
   },
   methods: {
+    // 不正解のクイズの行にクラスを付与
     rowClass(item, type) {
       if (!item || type !== "row") return;
       if (item.isCorrect === false) return "table-danger";
     },
+    // ホーム画面へ遷移する
     goHome() {
       this.$store.commit("resetResults");
       this.$router.push({ path: "home" });
@@ -46,6 +58,8 @@ export default {
   },
   mounted() {
     this.respondedNumber = this.results.length;
+
+    // 正解率を表示する
     this.score = Math.round(
       (this.results.filter(result => result.isCorrect === true).length /
         this.results.length) *
@@ -56,9 +70,11 @@ export default {
 </script>
 
 <style>
+/* 右寄せ */
 .right {
   margin-left: auto;
 }
+/* 左寄せ */
 .left {
   text-align: left;
 }

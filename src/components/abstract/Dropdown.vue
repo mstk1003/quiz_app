@@ -14,14 +14,20 @@
 <script>
 export default {
   props: {
+    // ドロップダウンに表示するアイテム
     items: Array
   },
   data() {
     return {
+      // ドロップダウンから選択したアイテム
       selectedItem: "Choose"
     };
   },
   methods: {
+    /**
+     * 選択したアイテムを親コンポーネントに渡す
+     * @param item 選択した要素
+     */
     selectItem(item) {
       this.selectedItem = item;
       this.$emit("select", item);
