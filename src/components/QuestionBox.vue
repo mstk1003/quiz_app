@@ -1,111 +1,162 @@
 <template>
-  <div class="question-box-container">
-    <b-jumbotron>
-      <template #lead>
-        {{ currentQuestion.question }}
-      </template>
-
-      <hr class="my-4" />
-
-      <b-list-group>
-        <b-list-group-item
-          v-for="(shuffledAnswer, index) in shuffledAnswers"
-          :key="index"
-          @click="selectAnswer(index)"
-          :class="answerClass(index)"
-          >{{ shuffledAnswer }}</b-list-group-item
-        >
-      </b-list-group>
-
-      <b-button
-        @click="submitAnswer"
-        variant="primary"
-        :disabled="selectedIndex === null || answered"
-        >Submit</b-button
+  <div>
+    <Header
+      ><b-nav-item class="right">
+        Counting Score... {{ record.score }} / {{ record.respondedNumber }}
+      </b-nav-item></Header
+    >
+    <h3>{{ currentQuestion.question }}</h3>
+    <b-list-group>
+      <b-list-group-item
+        @click="selectAnswer(index)"
+        :class="answerClass(index)"
+        v-for="(answer, index) in shuffledAnswers"
+        :key="index"
+        >{{ answer }}</b-list-group-item
       >
-      <b-button @click="next" variant="success" href="#">Next</b-button>
-    </b-jumbotron>
+    </b-list-group>
+    <b-button
+      pill
+      @click="submit"
+      :hidden="isAnswered"
+      :disabled="selectedIndex === null ? true : false"
+      variant="primary"
+      >submit</b-button
+    >
+    <b-button
+      pill
+      @click="next"
+      :hidden="!isAnswered || record.respondedNumber === 10"
+      variant="primary"
+      >Next</b-button
+    >
+    <b-button
+      pill
+      @click="showResult"
+      :hidden="!isAnswered || record.respondedNumber !== 10"
+      variant="primary"
+      >Show Result</b-button
+    >
   </div>
 </template>
 
 <script>
 import _ from "lodash";
+import Header from "@/components/abstract/Header.vue";
+
 export default {
-  props: { currentQuestion: Object, next: Function, increment: Function },
+  props: {
+    currentQuestions: Array,
+    difficulty: String,
+    categoryId: Number,
+    categoryName: String
+  },
+  components: {
+    Header
+  },
   data() {
     return {
-      selectedIndex: null,
-      correctIndex: null,
-      answered: false,
+      currentQuestionIndex: 0,
+      currentQuestion: [],
       shuffledAnswers: [],
+      correctIndex: null,
+      selectedIndex: null,
+      isAnswered: false,
+      isCorrect: false,
+      result: {
+        question: String,
+        isCorrect: Boolean,
+        yourAnswer: String,
+        correctAnswer: String
+      },
+      record: {
+        userId: this.$store.state.userInfo.userId,
+        difficulty: this.difficulty,
+        categoryId: this.categoryId,
+        categoryName: this.categoryName,
+        score: 0,
+        respondedNumber: 0
+      }
     };
   },
   watch: {
     currentQuestion: {
-      immediate: true,
       handler() {
-        this.selectedIndex = null;
-        this.correctIndex = null;
-        this.answered = false;
-        this.shuffleAnswers();
-      },
-    },
-  },
-  computed: {
-    answers() {
-      let answers = [...this.currentQuestion.incorrect_answers];
-      answers.push(this.currentQuestion.correct_answer);
-      return answers;
-    },
+        this.shuffleAnswer(this.currentQuestion);
+      }
+    }
   },
   methods: {
-    selectAnswer(index) {
-      this.selectedIndex = index;
-    },
-    submitAnswer() {
-      let isCorrect = false;
-      if (this.selectedIndex === this.correctIndex) {
-        isCorrect = true;
-      }
-      this.answered = true;
-      this.increment(isCorrect);
-    },
-    shuffleAnswers() {
-      let answers = [
-        ...this.currentQuestion.incorrect_answers,
-        this.currentQuestion.correct_answer,
-      ];
-      this.shuffledAnswers = _.shuffle(answers);
+    shuffleAnswer(currentQuestion) {
+      // let shuffledAnswers =[...currentQuestion.incorrect_answers, currentQuestion.correct_answer];
+      this.shuffledAnswers = _.shuffle([
+        ...currentQuestion.incorrect_answers,
+        currentQuestion.correct_answer
+      ]);
       this.correctIndex = this.shuffledAnswers.indexOf(
-        this.currentQuestion.correct_answer
+        currentQuestion.correct_answer
       );
-      return this.shuffledAnswers;
+    },
+    selectAnswer(index) {
+      if (!this.isAnswered) {
+        this.selectedIndex = index;
+      }
+    },
+    next() {
+      this.currentQuestion = this.currentQuestions[++this.currentQuestionIndex];
+      this.correctIndex = null;
+      this.selectedIndex = null;
+      this.isAnswered = false;
+      this.isCorrect = false;
     },
     answerClass(index) {
-      return {
-        selected: index === this.selectedIndex && !this.answered,
-        correct: index === this.correctIndex && this.answered,
-        incorect:
-          index !== this.correctIndex &&
-          index === this.selectedIndex &&
-          this.answered,
-      };
+      if (index === this.selectedIndex && !this.isAnswered) {
+        return "selected";
+      } else if (index === this.correctIndex && this.isAnswered) {
+        return "correct";
+      } else if (
+        index === this.selectedIndex &&
+        index !== this.correctIndex &&
+        this.isAnswered
+      ) {
+        return "incorrect";
+      }
     },
+    submit() {
+      if (this.correctIndex === this.selectedIndex) {
+        this.isCorrect = true;
+        this.record.score++;
+      }
+      this.isAnswered = true;
+      this.record.respondedNumber++;
+
+      this.result.question = this.currentQuestion.question;
+      this.result.correctAnswer = this.currentQuestion.correct_answer;
+      this.result.yourAnswer = this.shuffledAnswers[this.selectedIndex];
+      this.result.isCorrect = this.isCorrect;
+
+      this.$store.commit("registerResult", this.result);
+    },
+    showResult() {
+      this.$store.commit("registerRecord", this.record);
+      this.$router.push({
+        name: "result",
+        params: {
+          difficulty: this.difficulty,
+          categoryName: this.categoryName
+        }
+      });
+    }
   },
+  mounted() {
+    this.currentQuestion = this.currentQuestions[this.currentQuestionIndex];
+  }
 };
 </script>
 
 <style scoped>
-.list-group {
-  margin-bottom: 15px;
-}
-.list-group-item:hover {
-  background-color: lightyellow;
-  cursor: pointer;
-}
-
-.btn {
-  margin: 0 10px;
+.right {
+  margin-left: auto;
 }
 .selected {
   background-color: lightblue;
@@ -113,7 +164,7 @@ export default {
 .correct {
   background-color: lightgreen;
 }
-.incorect {
-  background-color: red;
+.incorrect {
+  background-color: lightcoral;
 }
 </style>
