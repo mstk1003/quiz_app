@@ -1,13 +1,10 @@
 <template>
   <div>
     <Header>
-      <b-nav-item class="right" href="profile"
-        ><b>{{ userName }}</b></b-nav-item
-      >
       <b-nav-item href="#"><b>Sign Out</b></b-nav-item>
     </Header>
     <h3>Show Your Wisdom !</h3>
-    <h3>Aim for King of quizzes !</h3>
+    <h3>Aim for King of QUIZ !</h3>
     <Dropdown :items="categoryNames" @select="selectCategory" />
     <Dropdown :items="difficultyLabels" @select="selectDifficulty" />
     <b-button pill @click="startQuiz" variant="danger">Quiz Start !</b-button>
@@ -117,6 +114,14 @@ export default {
     this.modes = this.$store.state.modes;
     // インスタンスに難易度のラベルを保持する
     this.difficultyLabels = this.modes.map(mode => mode.label);
+
+    if (this.$store.state.records === null) {
+      // ストアステートのレコード情報がnullの場合、レコード情報をローカルストレージに保存する
+      this.$store.dispatch("setRecords2LocalStrage");
+    } else {
+      // ストアステートのレコード情報がnullでない場合、ストアのレコードにローカルストレージのレコードを同期する
+      this.$store.dispatch("getRecordsFromLocalStrage");
+    }
   }
 };
 </script>

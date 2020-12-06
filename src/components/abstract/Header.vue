@@ -1,7 +1,12 @@
 <template>
   <div>
     <b-nav>
-      <b-navbar-brand href="#"><b>English Quiz Charrenge !</b></b-navbar-brand>
+      <b-navbar-brand href="#" @click="goHome"
+        ><b>English Quiz Charrenge !</b></b-navbar-brand
+      >
+      <b-nav-item class="right" @click="goProfile"
+        ><b>{{ userName }}</b></b-nav-item
+      >
       <slot></slot>
     </b-nav>
   </div>
@@ -17,6 +22,14 @@ export default {
     return {
       userName: this.$store.state.userInfo.userName
     };
+  },
+  methods: {
+    goProfile() {
+      this.$router.push({ name: "profile" }).catch(() => {});
+    },
+    goHome() {
+      this.$router.push({ name: "home" }).catch(() => {});
+    }
   }
 };
 </script>

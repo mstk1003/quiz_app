@@ -7,39 +7,13 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
     state: {
         // 現在のユーザー情報
-        userInfo: {
-            userId: 'mameta',
-            userName: 'まめた',
-            password: 'mameta',
-            // TODO あとでfalseに戻す
-            auth: false
-        },
+        userInfo: {},
         // 登録しているユーザーリスト
-        userInfos: [{
-            userId: 'mameta',
-            userName: 'まめた',
-            password: 'mameta',
-            // TODO あとでfalseに戻す
-            auth: false
-        }],
+        userInfos: [],
         // 結果
-        results: [
-            {
-                question: String,
-                isCorrect: Boolean,
-                yourAnswer: String,
-                correctAnswer: String
-            }
-        ],
+        results: [],
         // ユーザーのレコード
-        records: [{
-            userId: String,
-            difficulty: String,
-            categoryId: String,
-            categoryName: String,
-            score: Number,
-            respondedNumber: Number
-        }],
+        records: [],
         // モード
         modes: [
             {
@@ -83,7 +57,7 @@ const store = new Vuex.Store({
          * @param state ストアステート
          */
         resetUserInfo(state){
-            state.userInfo = Array;
+            state.userInfo = Object;
         },
         /**
          * ユーザーの認証をする
@@ -101,15 +75,18 @@ const store = new Vuex.Store({
                 if( user.password === payload.password ) {
                     // ストアステートのユーザー情報を更新する
                     console.log("passwardが一致するユーザー情報あり")
-                    state.userInfo.userName = payload.Name,
-                    state.userInfo.userId = payload.userId,
-                    state.userInfo.password = payload.password,
+                    state.userInfo.userName = state.userInfos[index].userName;
+                    state.userInfo.userId = state.userInfos[index].userId;
+                    state.userInfo.password = state.userInfos[index].password;
                     // 認証を許可する
-                    state.userInfo.auth = true
+                    state.userInfo.auth = true;
+                } else {
+                    // パスワードが一致しない場合、アラートを表示する
+                    window.alert("パスワードが間違っています");
                 }
             } else {
                 // 一致するユーザー情報がない場合、アラートを表示する
-                window.alert("ユーザー情報が見つかりません。サインアップしてください。")
+                window.alert("ユーザー情報が見つかりません。サインアップしてください。");
             }
         },
         /**
@@ -118,7 +95,6 @@ const store = new Vuex.Store({
          * @param payload ペイロード
          */
         registerResult(state, payload){
-            // 
             state.results.push(
                 {
                     question: payload.question,
@@ -165,6 +141,7 @@ const store = new Vuex.Store({
                 state.records[recordIndex].score += payload.score;
                 state.records[recordIndex].respondedNumber += payload.respondedNumber;
             }
+            store.dispatch("setRecords2LocalStrage");
         }
     },
     actions: {
@@ -172,16 +149,40 @@ const store = new Vuex.Store({
          * ローカルストレージにユーザー情報を保存する
          * @param context コンテキスト
          */
-        setLocalStrage(context) {
-            localStorage.setItem('userInfo', JSON.stringify(context.state.userInfo));
+        setUserInfo2LocalStrage(context) {
+            localStorage.setItem('userInfos', JSON.stringify(context.state.userInfos));
         },
         /**
          * ローカルストレージからユーザー情報を取得する
          * @param context コンテキスト
          */
-        getLocalStrage(context) {
-            context.state.userInfo = JSON.parse(localStorage.getItem('userInfo'));
-        }
+        getUserInfoFromLocalStrage(context) {
+            if (localStorage.getItem('userInfos') === null) {
+                // ローカルストレージのユーザー情報がnullの場合、ストアステートのレコード情報をローカルストレージに保存する
+                store.dispatch("setUserInfo2LocalStrage");
+              }
+              // ストアのユーザー情報とローカルストレージのユーザー情報を同期する
+              context.state.userInfos = JSON.parse(localStorage.getItem('userInfos'));
+        },
+        /**
+         * ローカルストレージからレコードを取得する
+         * @param context コンテキスト
+         */
+        setRecords2LocalStrage(context) {
+            localStorage.setItem('records', JSON.stringify(context.state.records));
+        },
+        /**
+         * ローカルストレージからレコードを取得する
+         * @param context コンテキスト
+         */
+        getRecordsFromLocalStrage(context) {
+            if (localStorage.getItem('records') === null) {
+                // ローカルストレージのレコード情報がnullの場合、ストアステートのレコード情報をローカルストレージに保存する
+                this.$store.dispatch("setRecords2LocalStrage");
+              }
+              // ストアのレコードにローカルストレージのレコードを同期する
+              context.state.records = JSON.parse(localStorage.getItem('records'));
+        },
     }
 })
 
