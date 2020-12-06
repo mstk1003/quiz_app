@@ -42,7 +42,7 @@ export default {
     // ログイン画面を開いたときに、ストアのユーザー情報をリセットする
     this.$store.commit("resetUserInfo");
     // ローカストレージからユーザー情報を取得し、ストアに保存する
-    this.$store.dispatch("getLocalStrage");
+    this.$store.dispatch("getUserInfoFromLocalStrage");
   }
 };
 </script>

@@ -39,7 +39,7 @@ export default {
      */
     registerUserInfo() {
       // ローカルストレージからユーザー情報を取得
-      this.$store.dispatch("getLocalStrage");
+      this.$store.dispatch("getUserInfoFromLocalStrage");
       // ユーザー情報を登録する
       this.$store.commit("registerUserInfo", {
         userName: this.userName,
@@ -49,7 +49,7 @@ export default {
       });
 
       // ローカルストレージにユーザー情報を保存する
-      this.$store.dispatch("setLocalStrage");
+      this.$store.dispatch("setUserInfo2LocalStrage");
       // ログイン画面へ遷移する
       this.$router.push({ path: "/login" });
     }
