@@ -21,6 +21,7 @@ export default {
       userName: this.$store.state.userInfo.userName,
       // レコード
       records: [],
+      // フィールド
       fields: [
         {
           key: "categoryName",
@@ -42,6 +43,9 @@ export default {
     };
   },
   computed: {
+    /**
+     * 正解率の総合スコアを計算する
+     */
     calcTotalScore() {
       let totalScore = 0;
       this.records.forEach(record => {
@@ -51,11 +55,13 @@ export default {
     }
   },
   mounted() {
+    // レコードを加工する
     this.$store.state.records.forEach(record => {
       this.records.push({
         categoryName: record.categoryName,
         difficulty: record.difficulty,
         respondedNumber: record.respondedNumber,
+        // スコアを正解率（％）に変換する
         score: Math.round((record.score / record.respondedNumber) * 100)
       });
     });
